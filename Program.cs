@@ -44,8 +44,8 @@ namespace LinqMitXML
                                 <Semester>N.A.</Semester>
                             </Student>                            
                             <Student>
-                                <Name>Frank</Name>
-                                <Age>112</Age>
+                                <Name>FehlerhafteAgeEingabe</Name>
+                                <Age>öööö</Age>
                                 <University>Beijing Tech</University>
                                 <Semester>N.A.</Semester>
                             </Student>
@@ -90,12 +90,32 @@ namespace LinqMitXML
 
             //var ageSortedStudents = from student in students orderby student.Age select student;
             // falsch sortiert mit Age als string, hier unter korrigiert. MACHT ABER EXCEPTION WENN AGE nicht geparsed sein kann TODO!!
-            var ageSortedStudents = from student in students orderby Int32.Parse(student.Age) select student;
+            ////var ageSortedStudents = from student in students orderby Int32.Parse(student.Age) select student;
 
-            Console.WriteLine("SORTIERT NACH ALTER");
-            foreach (var stu in ageSortedStudents)      
+            ////Console.WriteLine("SORTIERT NACH ALTER");
+            ////foreach (var stu in ageSortedStudents)      
+            ////{
+            ////    Console.WriteLine($"Der Student/in {stu.Name} ist {stu.Age} und studiert in {stu.University} und ist in Semester {stu.Semester}");
+            ////}
+            ///
+            // erst konvertieren richtig, wenn nicht konvertierbar, dann  ageInt =0
+            int ageInt = 0;
+            var ageConvertedStudents = from student in students 
+                                       select new
+                                       {
+                                           Name = student.Name,
+                                           ageInt = Int32.TryParse(student.Age, out ageInt) ? ageInt : 0,       //0 als default value für ungültig.KLAPPT!
+                                           University = student.University,
+                                           Semester = student.Semester
+                                       };
+
+            Console.WriteLine("Jetzt richtig SORTIERT NACH ALTER");
+
+
+            var ageConvertedSortedStudents = from student in ageConvertedStudents orderby student.ageInt select student;
+            foreach (var stu in ageConvertedSortedStudents)
             {
-                Console.WriteLine($"Der Student/in {stu.Name} ist {stu.Age} und studiert in {stu.University} und ist in Semester {stu.Semester}");
+                Console.WriteLine($"Der Student/in {stu.Name} ist {stu.ageInt} und studiert in {stu.University} und ist in Semester {stu.Semester}");
             }
             Console.ReadKey();
         }
